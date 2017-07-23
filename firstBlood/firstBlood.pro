@@ -7,6 +7,8 @@
 QT       += core gui webkit network
 QT       += webkitwidgets
 
+CONFIG += c++14
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = firstBlood

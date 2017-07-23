@@ -6,7 +6,7 @@ MainServer::MainServer(QObject *parent) : QObject(parent)
     socket = new QTcpSocket(this);
 
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readData()));
+    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
     QHostAddress ipAddress;
     QList<QHostAddress> ipAddressList = QNetworkInterface::allAddresses();
@@ -47,15 +47,39 @@ MainServer::MainServer(QObject *parent) : QObject(parent)
 void MainServer::newConnection()
 {
     QTcpSocket *socket = server->nextPendingConnection();
-
-    socket->write("hello client\r\nSend me the file\r\n");
+    connectionCount++;
+    QByteArray welcomeMessage = QByteArray("hello client\r\nSend me the file\nConnection count = ").append(QString::number(connectionCount)).append("\r\n");
+    socket->write(welcomeMessage);
     socket->flush();
 
     socket->waitForBytesWritten(3000);
     qDebug() << "client connected";
+
+    auto handleIncoming = [this, socket](){
+
+        QByteArray incoming = socket->readAll();
+        qDebug() << "lambda:: incoming message from client " << incoming;
+        QString fileName = "/home/karuna/project/client_server/resources/receivedFile.txt";
+        QFile target;
+        target.setFileName(fileName);
+
+        if(!target.open(QFile::WriteOnly | QFile::Append))
+        {
+            qDebug() << "Can't open file for writting";
+            return;
+        }
+
+        target.write(incoming);
+        target.flush();
+        target.close();
+
+        qDebug() << "file size: " << target.size();
+    };
+
+    connect(socket, &QTcpSocket::readyRead, handleIncoming);
 }
 
-void MainServer::readData()
+void MainServer::readyRead()
 {
     QByteArray incoming = socket->readAll();
     QString fileName = "/home/karuna/project/client_server/resources/receivedFile.txt";

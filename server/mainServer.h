@@ -18,11 +18,13 @@ signals:
 
 public slots:
     void newConnection();
-    void readData();
+    void readyRead();
 
 private:
     QTcpServer *server;
     QTcpSocket *socket;
+
+    qint16 connectionCount = 0;
 };
 
 #endif // MAINSERVER_H

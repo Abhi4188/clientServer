@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     socket = new QTcpSocket();
+    ui->pushButton_2->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -26,31 +27,44 @@ void MainWindow::on_pushButton_clicked()
     }
 
     QTextStream in(&file);
- //   QString text = in.readAll();
+    QByteArray text = in.readAll().toUtf8();
 
-//   ui->textBrowser->setText(text);
+    ui->textBrowser->setText(text);
+
+    auto handleIncoming = [this, text](){
+        ui->pushButton->setEnabled(false);
+        ui->pushButton_2->setEnabled(true);
+
+        QByteArray incoming = socket->readAll();
+        qDebug() << "lambda:: incoming message from server " << incoming;
+        ui->textBrowser_2->setText(incoming);
+
+        auto bytesWritten = socket->write(text);
+        socket->flush();
+
+        qDebug() << "bytes written to server: " << bytesWritten;
+
+        socket->waitForBytesWritten(3000);
+    };
+
+    connect(socket, &QTcpSocket::readyRead, handleIncoming);
 
     socket->connectToHost("192.168.0.111", 1234);
-    socket->waitForConnected();
-    if(!socket->open(QIODevice::ReadWrite))
-        qDebug() << "Could not connect to server";
-
-    else
-    {
-        socket->waitForBytesWritten(4000);
-        QByteArray in = socket->readAll();
-        qDebug() << "server response: " << in;
-    }
-
-    QByteArray q = file.readAll();
 
     file.flush();
     file.close();
+}
 
-    socket->write(q);
+void MainWindow::on_pushButton_2_clicked()
+{
+    socket->close();
+    socket->disconnect();
+    ui->pushButton->setEnabled(true);
+    ui->pushButton_2->setEnabled(false);
+}
 
-//    for(int i = 0; i < q.size();)
-//    {
-//        i += socket->write(q);
-//    }
+void MainWindow::on_pushButton_3_clicked()
+{
+    QString userName = ui->textEdit->toPlainText();
+    qDebug() << userName;
 }
