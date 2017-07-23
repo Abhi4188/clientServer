@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QTextStream>
 #include <QTcpSocket>
+//#include <form1.h>
 
 namespace Ui {
 class MainWindow;
@@ -23,12 +24,14 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
-    void on_pushButton_3_clicked();
+    void on_closeButton_clicked();
+
+    void on_userIdButton_clicked();
 
 private:
     Ui::MainWindow *ui;
     QTcpSocket *socket;
+//    Form1 *form1;
 };
 
 #endif // MAINWINDOW_H

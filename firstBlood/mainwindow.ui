@@ -27,7 +27,7 @@
      <string>File contents:</string>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="textBrowser_2">
+   <widget class="QTextBrowser" name="serverMsgTextBrowser">
     <property name="geometry">
      <rect>
       <x>130</x>
@@ -50,7 +50,7 @@
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Message from &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;server:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="closeButton">
     <property name="geometry">
      <rect>
       <x>540</x>
@@ -76,7 +76,7 @@
      <string>Enter user ID:</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QTextEdit" name="userIdTextEdit">
     <property name="geometry">
      <rect>
       <x>130</x>
@@ -86,7 +86,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_3">
+   <widget class="QPushButton" name="userIdButton">
     <property name="geometry">
      <rect>
       <x>320</x>
@@ -99,7 +99,7 @@
      <string>done</string>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="textBrowser">
+   <widget class="QTextBrowser" name="fileContentsTextBrowser">
     <property name="geometry">
      <rect>
       <x>130</x>

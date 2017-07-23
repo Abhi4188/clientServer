@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     socket = new QTcpSocket();
-    ui->pushButton_2->setEnabled(false);
+    ui->closeButton->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -17,27 +17,48 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
+    qDebug()  << "no longer active";
+}
+
+void MainWindow::on_closeButton_clicked()
+{
+    socket->close();
+    socket->disconnect();
+    ui->pushButton->setEnabled(true);
+    ui->closeButton->setEnabled(false);
+
+ //   form1->show();
+}
+
+void MainWindow::on_userIdButton_clicked()
+{
+    QString userId = ui->userIdTextEdit->toPlainText();
+    qDebug() << "userId = " << userId;
+
+    // send server the userID
+    // send server the file
+
     QString fileName = "/home/karuna/project/client_server/resources/testFile.txt";
     QFile file(fileName);
 
     if(!file.open(QFile::ReadOnly))
     {
         qDebug() << "Could not open file";
-        ui->textBrowser->setText("Could not open file");
+        ui->fileContentsTextBrowser->setText("Could not open file");
     }
 
     QTextStream in(&file);
     QByteArray text = in.readAll().toUtf8();
 
-    ui->textBrowser->setText(text);
+    ui->fileContentsTextBrowser->setText(text);
 
     auto handleIncoming = [this, text](){
         ui->pushButton->setEnabled(false);
-        ui->pushButton_2->setEnabled(true);
+        ui->closeButton->setEnabled(true);
 
         QByteArray incoming = socket->readAll();
         qDebug() << "lambda:: incoming message from server " << incoming;
-        ui->textBrowser_2->setText(incoming);
+        ui->serverMsgTextBrowser->setText(incoming);
 
         auto bytesWritten = socket->write(text);
         socket->flush();
@@ -53,18 +74,11 @@ void MainWindow::on_pushButton_clicked()
 
     file.flush();
     file.close();
-}
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    socket->close();
-    socket->disconnect();
-    ui->pushButton->setEnabled(true);
-    ui->pushButton_2->setEnabled(false);
-}
+    /*
+    QString filePath = "/home/karuna/project/client_server/resources/user_accounts/" + userId;
 
-void MainWindow::on_pushButton_3_clicked()
-{
-    QString userName = ui->textEdit->toPlainText();
-    qDebug() << userName;
+    if(!QDir(filePath).exists())
+        QDir().mkdir(filePath);
+    */
 }
