@@ -6,7 +6,6 @@ MainServer::MainServer(QObject *parent) : QObject(parent)
     socket = new QTcpSocket(this);
 
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
     QHostAddress ipAddress;
     QList<QHostAddress> ipAddressList = QNetworkInterface::allAddresses();
@@ -47,8 +46,8 @@ MainServer::MainServer(QObject *parent) : QObject(parent)
 void MainServer::newConnection()
 {
     QTcpSocket *socket = server->nextPendingConnection();
-    connectionCount++;
-    QByteArray welcomeMessage = QByteArray("hello client\r\nSend me the file\nConnection count = ").append(QString::number(connectionCount)).append("\r\n");
+    m_connectionCount++;
+    QByteArray welcomeMessage = QByteArray("hello client\r\nSend me the userID\nConnection count = ").append(QString::number(m_connectionCount)).append("\r\n");
     socket->write(welcomeMessage);
     socket->flush();
 
@@ -57,6 +56,8 @@ void MainServer::newConnection()
 
     auto handleIncoming = [this, socket](){
 
+        this->readData();
+        /*
         QByteArray incoming = socket->readAll();
         qDebug() << "lambda:: incoming message from client " << incoming;
         QString fileName = "/home/karuna/project/client_server/resources/receivedFile.txt";
@@ -74,27 +75,43 @@ void MainServer::newConnection()
         target.close();
 
         qDebug() << "file size: " << target.size();
+        */
     };
 
     connect(socket, &QTcpSocket::readyRead, handleIncoming);
 }
 
-void MainServer::readyRead()
+void MainServer::readData()
 {
+    qDebug() << "incoming from client";
     QByteArray incoming = socket->readAll();
-    QString fileName = "/home/karuna/project/client_server/resources/receivedFile.txt";
-    QFile target;
-    target.setFileName(fileName);
 
-    if(!target.open(QFile::WriteOnly | QFile::Append))
+    if(incoming.contains("userID")
     {
-        qDebug() << "Can't open file for writting";
-        return;
+        const QString fileName = "/receivedFile.txt";
+        QString filePath = "/home/karuna/project/client_server/resources/" + incoming.remove(0, 6);
+
+        if(!QDir(filePath).exists())
+            QDir().mkdir(filePath);
+
+        m_target.setFileName(filePath + fileName);
+
+        socket->write("SEND_FILE");
+        socket->waitForBytesWritten(3000);
     }
 
-    target.write(incoming);
-    target.flush();
-    target.close();
+    else if (incoming.contains("DATA"))
+    {
+        if(!m_target.open(QFile::WriteOnly | QFile::Append))
+        {
+            qDebug() << "Can't open file for writting";
+            return;
+        }
 
-    qDebug() << "file size: " << target.size();
+        m_target.write(incoming);
+        m_target.flush();
+        m_target.close();
+
+        qDebug() << "file size: " << m_target.size();
+    }
 }

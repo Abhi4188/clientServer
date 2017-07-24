@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -18,13 +19,15 @@ signals:
 
 public slots:
     void newConnection();
-    void readyRead();
+    void readData();
 
 private:
     QTcpServer *server;
     QTcpSocket *socket;
 
-    qint16 connectionCount = 0;
+    QFile m_target;
+
+    qint16 m_connectionCount = 0;
 };
 
 #endif // MAINSERVER_H

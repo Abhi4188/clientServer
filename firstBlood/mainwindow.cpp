@@ -32,12 +32,38 @@ void MainWindow::on_closeButton_clicked()
 
 void MainWindow::on_userIdButton_clicked()
 {
-    QString userId = ui->userIdTextEdit->toPlainText();
-    qDebug() << "userId = " << userId;
+    QByteArray userId = "userID:";
+    userId.append(ui->userIdTextEdit->toPlainText());
+
+    qDebug() << userId;
 
     // send server the userID
-    // send server the file
+    socket->connectToHost("192.168.0.111", 1234);
 
+    socket->waitForReadyRead();
+
+    QByteArray serverResponse = socket->readAll();
+    qDebug() << "incoming message from server " << serverResponse;
+    ui->serverMsgTextBrowser->setText(serverResponse);
+
+
+    socket->write(userId);
+    socket->flush();
+    socket->waitForBytesWritten(3000);
+    qDebug() << "userID sent to server";
+
+    socket->waitForReadyRead();
+
+    serverResponse = socket->readAll();
+    qDebug() << "serever response = " << serverResponse;
+
+    if(serverResponse != "SEND_FILE")
+    {
+        qDebug() << "No server ack received to send file";
+        return;
+    }
+
+    // send server the file
     QString fileName = "/home/karuna/project/client_server/resources/testFile.txt";
     QFile file(fileName);
 
@@ -48,7 +74,8 @@ void MainWindow::on_userIdButton_clicked()
     }
 
     QTextStream in(&file);
-    QByteArray text = in.readAll().toUtf8();
+    QByteArray text = "Sending file to server...\n";
+    text.append(in.readAll().toUtf8());
 
     ui->fileContentsTextBrowser->setText(text);
 
@@ -69,8 +96,6 @@ void MainWindow::on_userIdButton_clicked()
     };
 
     connect(socket, &QTcpSocket::readyRead, handleIncoming);
-
-    socket->connectToHost("192.168.0.111", 1234);
 
     file.flush();
     file.close();
