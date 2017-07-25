@@ -38,3 +38,10 @@ build-server-Desktop_Qt_5_5_1_GCC_32bit-Debug/
 #backup file
 *.*~
 
+#user resources
+resources/
+
+#user pro files
+firstBlood/firstBlood.pro.user
+server/server.pro.user
+
